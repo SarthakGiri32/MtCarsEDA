@@ -1,2 +1,2 @@
 # Regression Models Course Project
-Analysis and Modelling of the `mtcars` dataset.
+Analysis and Modeling of the `mtcars` dataset in R.
