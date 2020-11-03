@@ -1,2 +1,2 @@
-# MtCarsEDA
-Analysis and Modelling of the 'mtcars' dataset
+# Regression Models Course Project
+Analysis and Modelling of the `mtcars` dataset.
