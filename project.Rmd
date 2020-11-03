@@ -1,0 +1,17 @@
+---
+title: "Regression Models Course Project"
+author: "Sarthak"
+date: "03/11/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Executive Summary
+
+In this project, analysis of the `mtcars` data set is done; and the relationship between some variables and the Miles per Gallon (MPG) of cars is explored and analyzed. The main questions that are solved in this project are:
+
+* Is and automatic or manual transmission better for MPG ?  
+* Quantify the MPG difference between automatic and manual transmission
