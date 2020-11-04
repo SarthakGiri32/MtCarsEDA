@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 
 ## Executive Summary
 
-In this project, analysis of the `mtcars` data set is done; and the relationship between some variables and the Miles per Gallon (MPG) of cars is explored and analyzed. The main questions that are solved in this project are: *Is and automatic or manual transmission better for MPG ?*, and *Quantify the MPG difference between automatic and manual transmission*. Various regression models and exploratory data analyses are used to analyze how having automatic or manual transmission in a car effects its MPG rating. To check whether automatic or manual transmission is better for performance, several regression models are fitted on the data set with MPG as outcome, and the one with highest adjusted R-squared value is selected (this high value is obtained by using other variables in the model fit alongside the automatic transmission variable). From the best fit model, considering 1/4 mile time and weight of the car to be constants, the MPG of manual transmission cars is `14.08+(-4.14)*weight` more on average than automatic transmission cars.
+In this project, analysis of the `mtcars` data set is done; and the relationship between some variables and the Miles per Gallon (MPG) of cars is explored and analyzed. The main questions that are solved in this project are: *Is an automatic or manual transmission better for MPG ?*, and *Quantify the MPG difference between automatic and manual transmission*. Various regression models and exploratory data analyses are used to analyze how having automatic or manual transmission in a car effects its MPG rating. To check whether automatic or manual transmission is better for performance, several regression models are fitted on the data set with MPG as outcome, and the one with highest adjusted R-squared value is selected (this high value is obtained by using other variables in the model fit alongside the automatic transmission variable). From the best fit model, considering 1/4 mile time and weight of the car to be constants, the MPG of manual transmission cars is `14.08+(-4.14)*weight` more on average than automatic transmission cars.
 Performing T-tests between the mpg of cars with manual transmission and automatic transmission suggests that there is a significant difference between the MPG of cars with manual transmission and the MPG of cars with automatic transmission. From the t-test, it is evident that the MPG of manual transmission cars are approximately 7 more than that of automatic transmission cars.
 
 ## Question 1
@@ -32,7 +32,7 @@ mtcars$cyl <- as.factor(mtcars$cyl)
 mtcars$carb <- as.factor(mtcars$carb)
 ```
 
-A box-plot is created showing the difference between the `mpg` of the cars with manual transmission and automatic transmission (can be found in *[appendix](#appendix)*)
+A box-plot is created showing the difference between the `mpg` of the cars with manual transmission and automatic transmission (can be found in *[appendix](#box)*)
 
 ### 2. Regression Modeling
 
@@ -56,7 +56,7 @@ summary(backModel)
 
 From the backward selection model, the selected variables are `am`, `qsec` and `wt`, wherein `am` is factor variable with `0` denoting automatic and `1` denoting manual transmission, `qsec` is 1/4 mile time, and `wt` is the car weight in 1000 lbs. The adjusted R-squared is 0.8497, which is more than the previous model. All the variables are significant, with a significance level below 0.05. The residual standard error for this model is 2.46 with 28 degrees of freedom.
 
-In the scatter plot comparing `mpg` vs `wt` with `am` used to color the dots (see in the *[appendix](#appendix)*), it is evident that there is some interaction between `wt` and `am`, wherein automatic transmission cars seem to have more weight than manual transmission cars. So, an interaction term can be added to the above model.
+In the scatter plot comparing `mpg` vs `wt` with `am` used to color the dots (see in the *[appendix](#scatter)*), it is evident that there is some interaction between `wt` and `am`, wherein automatic transmission cars seem to have more weight than manual transmission cars. So, an interaction term can be added to the above model.
 
 ```{r, results='hide'}
 # output of code is suppressed
@@ -83,4 +83,69 @@ The final model selected is the `backModelInt`, with `wt`, `qsec`, `am` and `wt:
 summary(backModelInt)$coef
 ```
 
-From the coefficients' summary, it is evident that the manual transmission cars are better than automatic transmission cars for MPG. Considered the `wt` and `qsec` variable constant, the MPG for manual transmission cars is `14.08+(-4.14)*weight` more on average than that of automatic transmission cars. Thus, a manual transmission car that has a weight of 3000 lbs (or `3` in the `wt` variable) will have `14.08+(-4.14)*3=1.66` MPG more than the automatic transmission car with the same weight, considered `wt` and `qsec` as constants.
+From the coefficients' summary, it is evident that the manual transmission cars are better than automatic transmission cars for MPG. Considered the `wt` and `qsec` variable constant, the MPG for manual transmission cars is `14.08+(-4.14)*weight` more on average than that of automatic transmission cars. Thus, the first question has been answered.
+
+## Question 2
+
+### 1. Hypothesis Testing
+
+
+```{r}
+tTest <- t.test(mpg ~ am, data = mtcars)
+tTest
+```
+
+Now, the difference in MPG between manual and automatic transmission cars has to be quantified. First, the distribution of MPG for manual and automatic cars will be explored via a box-plot (see in *[appendix](#box)*). From the box-plot, we can see that the MPG for manual transmission is higher than that of automatic. This difference can be confirmed statistically via a two-sample, two-sided t-test. The MPG distribution is assumed to be approximately normal, and the manual and automatic transmission MPG values are assumed to be random samples from the same population (with constant variance). (see in *[appendix](#resid)*).
+
+The difference in mean MPG between automatic and manual transmission has a confidence interval of -11.28 to -3.21. Also, the p-value is 0.001374, means that there is significant evidence to reject the null hypothesis, and there is a significant difference in mean MPG between automatic and manual transmission, at a significance level of 0.05. Also, in the sample collected, the mean MPG of manual transmission is approximately 7 more than that of automatic transmission. Hence, the second question is also answered.
+
+## Residual Plots and Diagnostics
+
+The residual plots for the selected model in the first question have been created (see in *[appendix](#resid)*). The following assumptions are true from the plot:
+
+* The residuals versus fitted values plot shows that there is no particular pattern in the residuals, which proves the assumption of independence.  
+* The residuals versus leverage plot shows that no outliers are present in the data, since all points lie within the 0.5 bands.  
+* The normal Q-Q plot proves the normality assumption of the data, because the quantiles from the data are similar to the normal quantiles.  
+* The scale-location plot proves the assumption of constant variance, since the points are distributed randomly.  
+
+The `dfbetas`, which is the measure of how much effect an observation has on the estimate of a regression coefficient, is shown below.
+
+```{r}
+sum((abs(dfbetas(backModelInt)))>1)
+```
+
+Thus, all the assumptions needed to perform linear regression are true.
+
+## Appendix {#appendix}
+
+### 1. Boxplot of `mpg` vs `am` {#box}
+
+```{r, results='hide'}
+#loading the 'ggplot2' package
+library(ggplot2)
+```
+
+```{r}
+ggplot(aes(x = am, y = mpg), data = mtcars) +
+    geom_boxplot(aes(fill = am)) +
+    labs(x = "Transmission", y = "MPG", title = "MPG vs Transmission",
+         fill = "Transmssion") + theme_bw() +
+    scale_fill_manual(labels = c("Automatic", "Manual"), values = c("red", "light blue"))
+```
+
+### 2. Scatter plot of `mpg` vs `wt` with points colored by `am` {#scatter}
+
+```{r}
+ggplot(aes(x = wt, y = mpg, color = am), data = mtcars) + 
+    geom_point() + theme_bw() + 
+    labs(x = "Weight", y = "MPG", title = "MPG vs Weight and Transmission",
+         color = "Transmission") +
+    scale_colour_manual(labels = c("Automatic", "Manual"), 
+                        values = c("red", "blue"))
+```
+
+### 4. Plots from the selected model {#resid}
+
+```{r}
+par(mfrow = c(2, 2))
+plot(backModelInt)
